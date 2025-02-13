@@ -139,6 +139,8 @@ jobs:
         shell: msys2 {0}
         run: |
           wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+          # Workaround for https://github.com/msys2/MSYS2-packages/issues/1216
+          export MSYS=winsymlinks:lnk
           tar -xf qemu-$QEMU_VERSION.tar.xz
           mv qemu-$QEMU_VERSION qemu
 
