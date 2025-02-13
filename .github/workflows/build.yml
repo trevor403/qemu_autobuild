@@ -11,6 +11,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# Set a variable to the version of QEMU to build
+env:
+  QEMU_VERSION: 9.2.1
+
 jobs:
   build_macos:
     runs-on: macos-latest
@@ -23,9 +27,9 @@ jobs:
 
       - name: Download QEMU
         run: |
-          wget https://download.qemu.org/qemu-9.2.1.tar.xz
-          tar -xf qemu-9.2.1.tar.xz
-          mv qemu-9.2.1 qemu
+          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+          tar -xf qemu-$QEMU_VERSION.tar.xz
+          mv qemu-$QEMU_VERSION qemu
 
       - name: Build QEMU
         run: |
@@ -58,9 +62,9 @@ jobs:
 
       - name: Download QEMU
         run: |
-          wget https://download.qemu.org/qemu-9.2.1.tar.xz
-          tar -xf qemu-9.2.1.tar.xz
-          mv qemu-9.2.1 qemu
+          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+          tar -xf qemu-$QEMU_VERSION.tar.xz
+          mv qemu-$QEMU_VERSION qemu
 
       - name: Build QEMU
         run: |
@@ -71,7 +75,7 @@ jobs:
           mkdir build
           cd build
           
-          ../configure --target-list=x86_64-softmmu --without-default-features --enable-kvm --enable-static --prefix=$BUILD_DIR/dist
+          ../configure --target-list=x86_64-softmmu --without-default-features --enable-kvm --static --prefix=$BUILD_DIR/dist
           ninja
           ninja install
 
@@ -93,9 +97,9 @@ jobs:
 
       - name: Download QEMU
         run: |
-          wget https://download.qemu.org/qemu-9.2.1.tar.xz
-          tar -xf qemu-9.2.1.tar.xz
-          mv qemu-9.2.1 qemu
+          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+          tar -xf qemu-$QEMU_VERSION.tar.xz
+          mv qemu-$QEMU_VERSION qemu
 
       - name: Build QEMU
         run: |
@@ -106,7 +110,7 @@ jobs:
           mkdir build
           cd build
           
-          ../configure --target-list=aarch64-softmmu --without-default-features --enable-kvm --enable-static --prefix=$BUILD_DIR/dist
+          ../configure --target-list=aarch64-softmmu --without-default-features --enable-kvm --static --prefix=$BUILD_DIR/dist
           ninja
           ninja install
 
@@ -114,5 +118,45 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binaries-linux-arm64
+          path: |
+            dist
+
+  build_windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install packages
+        shell: msys2 {0}
+        run: |
+          pacman --noconfirm -S base-devel mingw-w64-x86_64-toolchain git python ninja
+          pacman --noconfirm -S mingw-w64-x86_64-glib2 mingw-w64-x86_64-pixman python-setuptools
+
+      - name: Download QEMU
+        shell: msys2 {0}
+        run: |
+          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+          tar -xf qemu-$QEMU_VERSION.tar.xz
+          mv qemu-$QEMU_VERSION qemu
+
+      - name: Build QEMU
+        shell: msys2 {0}
+        run: |
+          $BUILD_DIR=$(pwd)
+          mkdir $BUILD_DIR\dist
+
+          cd qemu
+          mkdir build
+          cd build
+          
+          ../configure --target-list=x86_64-softmmu --without-default-features --enable-whpx --prefix=$BUILD_DIR\dist
+          ninja
+          ninja install
+
+      - name: Archive binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-windows-amd64
           path: |
             dist
