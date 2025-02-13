@@ -1,0 +1,50 @@
+name: qemu_autobuild
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build_macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install packages
+        run: brew install ninja
+
+      - name: Download QEMU
+        run: |
+          wget https://download.qemu.org/qemu-9.2.1.tar.xz
+          tar -xf qemu-9.2.1.tar.xz
+          mv qemu-9.2.1 qemu
+
+      - name: Build QEMU
+        run: |
+          BUILD_DIR=$(pwd)
+          mkdir $BUILD_DIR/dist
+
+          cd qemu
+          mkdir build
+          cd build
+          
+          ../configure --target-list=aarch64-softmmu --without-default-features --enable-hvf --prefix=$BUILD_DIR/dist
+          ninja
+          ninja install
+
+      - name: Archive binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-macos
+          path: |
+            dist
