@@ -147,7 +147,7 @@ jobs:
       - name: Build QEMU
         shell: msys2 {0}
         run: |
-          $BUILD_DIR=$(pwd)
+          BUILD_DIR=$(pwd)
           mkdir $BUILD_DIR\dist
 
           cd qemu
