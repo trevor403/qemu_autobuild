@@ -154,7 +154,7 @@ jobs:
           mkdir build
           cd build
           
-          ../configure --target-list=x86_64-softmmu --without-default-features --enable-whpx --prefix=$BUILD_DIR/dist
+          ../configure --target-list=x86_64-softmmu --without-default-features --static --enable-whpx --prefix=$BUILD_DIR/dist
           ninja
           ninja install
 
