@@ -127,21 +127,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - uses: msys2/setup-msys2@v2
+
       - name: Install packages
-        shell: C:\msys64\usr\bin\bash.exe {0}
+        shell: msys2 {0}
         run: |
           pacman --noconfirm -S base-devel mingw-w64-x86_64-toolchain git python ninja
           pacman --noconfirm -S mingw-w64-x86_64-glib2 mingw-w64-x86_64-pixman python-setuptools
 
       - name: Download QEMU
-        shell: C:\msys64\usr\bin\bash.exe {0}
+        shell: msys2 {0}
         run: |
           wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
           tar -xf qemu-$QEMU_VERSION.tar.xz
           mv qemu-$QEMU_VERSION qemu
 
       - name: Build QEMU
-        shell: C:\msys64\usr\bin\bash.exe {0}
+        shell: msys2 {0}
         run: |
           $BUILD_DIR=$(pwd)
           mkdir $BUILD_DIR\dist
