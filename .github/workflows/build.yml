@@ -148,13 +148,13 @@ jobs:
         shell: msys2 {0}
         run: |
           BUILD_DIR=$(pwd)
-          mkdir $BUILD_DIR\dist
+          mkdir $BUILD_DIR/dist
 
           cd qemu
           mkdir build
           cd build
           
-          ../configure --target-list=x86_64-softmmu --without-default-features --enable-whpx --prefix=$BUILD_DIR\dist
+          ../configure --target-list=x86_64-softmmu --without-default-features --enable-whpx --prefix=$BUILD_DIR/dist
           ninja
           ninja install
 
