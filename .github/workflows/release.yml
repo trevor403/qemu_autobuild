@@ -189,7 +189,7 @@ jobs:
           cp binaries-windows-amd64/qemu-system-x86_64.exe qemu-windows-amd64.exe
           cp binaries-linux-amd64/bin/qemu-system-x86_64 qemu-linux-amd64
           cp binaries-linux-arm64/bin/qemu-system-aarch64 qemu-linux-arm64
-          cp binaries-darwin-arm64/bin/qemu-system-x86_64 qemu-darwin-arm64
+          cp binaries-darwin-arm64/bin/qemu-system-aarch64 qemu-darwin-arm64
 
       - name: Release
         uses: softprops/action-gh-release@v2
