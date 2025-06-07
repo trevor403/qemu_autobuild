@@ -11,10 +11,45 @@ permissions:
 
 # Set a variable to the version of QEMU to build
 env:
-  QEMU_VERSION: 9.2.1
+  QEMU_VERSION: 9.2.4
 
 jobs:
   build_macos:
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install packages
+        run: brew install ninja
+
+      - name: Download QEMU
+        run: |
+          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+          tar -xf qemu-$QEMU_VERSION.tar.xz
+          mv qemu-$QEMU_VERSION qemu
+
+      - name: Build QEMU
+        run: |
+          BUILD_DIR=$(pwd)
+          mkdir $BUILD_DIR/dist
+
+          cd qemu
+          mkdir build
+          cd build
+
+          ../configure --target-list=x86_64-softmmu --without-default-features --enable-hvf --prefix=$BUILD_DIR/dist
+          ninja
+          ninja install
+
+      - name: Archive binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-darwin-amd64
+          path: |
+            dist
+
+  build_macos_arm64:
     runs-on: macos-latest
 
     steps:
@@ -174,6 +209,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build_macos
+      - build_macos_arm64
       - build_linux
       - build_linux_arm64
       - build_windows
@@ -197,4 +233,5 @@ jobs:
             qemu-windows-amd64.exe
             qemu-linux-amd64
             qemu-linux-arm64
+            qemu-darwin-amd64
             qemu-darwin-arm64
