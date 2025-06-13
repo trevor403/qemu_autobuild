@@ -4,14 +4,13 @@ on:
   push:
     tags:
       - v*
-  workflow_dispatch:
 
 permissions:
   contents: write
 
 # Set a variable to the version of QEMU to build
 env:
-  QEMU_VERSION: 9.2.4
+  QEMU_VERSION: 10.0.2
 
 jobs:
   build_macos:
@@ -35,6 +34,8 @@ jobs:
           mkdir $BUILD_DIR/dist
 
           cd qemu
+          sed -i -e 's/version: glib_req_ver/version: glib_req_ver, static:true/g' meson.build
+
           mkdir build
           cd build
 
@@ -70,6 +71,8 @@ jobs:
           mkdir $BUILD_DIR/dist
 
           cd qemu
+          sed -i -e 's/version: glib_req_ver/version: glib_req_ver, static:true/g' meson.build
+
           mkdir build
           cd build
 
