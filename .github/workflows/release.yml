@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - v*
+    branches:
+      - macos-static-fix
   workflow_dispatch:
 
 permissions:
@@ -14,40 +16,40 @@ env:
   QEMU_VERSION: 9.2.4
 
 jobs:
-  build_macos:
-    runs-on: macos-13
+  # build_macos:
+  #   runs-on: macos-13
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Install packages
-        run: brew install ninja
+  #     - name: Install packages
+  #       run: brew install ninja
 
-      - name: Download QEMU
-        run: |
-          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
-          tar -xf qemu-$QEMU_VERSION.tar.xz
-          mv qemu-$QEMU_VERSION qemu
+  #     - name: Download QEMU
+  #       run: |
+  #         wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+  #         tar -xf qemu-$QEMU_VERSION.tar.xz
+  #         mv qemu-$QEMU_VERSION qemu
 
-      - name: Build QEMU
-        run: |
-          BUILD_DIR=$(pwd)
-          mkdir $BUILD_DIR/dist
+  #     - name: Build QEMU
+  #       run: |
+  #         BUILD_DIR=$(pwd)
+  #         mkdir $BUILD_DIR/dist
 
-          cd qemu
-          mkdir build
-          cd build
+  #         cd qemu
+  #         mkdir build
+  #         cd build
 
-          ../configure --target-list=x86_64-softmmu --without-default-features --enable-hvf --prefix=$BUILD_DIR/dist
-          ninja
-          ninja install
+  #         ../configure --target-list=x86_64-softmmu --without-default-features --enable-hvf --prefix=$BUILD_DIR/dist
+  #         ninja
+  #         ninja install
 
-      - name: Archive binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries-darwin-amd64
-          path: |
-            dist
+  #     - name: Archive binaries
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: binaries-darwin-amd64
+  #         path: |
+  #           dist
 
   build_macos_arm64:
     runs-on: macos-latest
@@ -77,6 +79,14 @@ jobs:
           ninja
           ninja install
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          ## limits ssh access and adds the ssh public key for the user which triggered the workflow
+          limit-access-to-actor: true
+          ## limits ssh access and adds the ssh public keys of the listed GitHub users
+          limit-access-to-users: trevor403
+
       - name: Archive binaries
         uses: actions/upload-artifact@v4
         with:
@@ -84,155 +94,155 @@ jobs:
           path: |
             dist
 
-  build_linux:
-    runs-on: ubuntu-latest
+  # build_linux:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Install packages
-        run: sudo apt-get update && sudo apt-get install -y ninja-build libglib2.0-dev libpixman-1-dev
+  #     - name: Install packages
+  #       run: sudo apt-get update && sudo apt-get install -y ninja-build libglib2.0-dev libpixman-1-dev
 
-      - name: Download QEMU
-        run: |
-          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
-          tar -xf qemu-$QEMU_VERSION.tar.xz
-          mv qemu-$QEMU_VERSION qemu
+  #     - name: Download QEMU
+  #       run: |
+  #         wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+  #         tar -xf qemu-$QEMU_VERSION.tar.xz
+  #         mv qemu-$QEMU_VERSION qemu
 
-      - name: Build QEMU
-        run: |
-          BUILD_DIR=$(pwd)
-          mkdir $BUILD_DIR/dist
+  #     - name: Build QEMU
+  #       run: |
+  #         BUILD_DIR=$(pwd)
+  #         mkdir $BUILD_DIR/dist
 
-          cd qemu
-          mkdir build
-          cd build
+  #         cd qemu
+  #         mkdir build
+  #         cd build
 
-          ../configure --target-list=x86_64-softmmu --without-default-features --enable-kvm --static --prefix=$BUILD_DIR/dist
-          ninja
-          ninja install
+  #         ../configure --target-list=x86_64-softmmu --without-default-features --enable-kvm --static --prefix=$BUILD_DIR/dist
+  #         ninja
+  #         ninja install
 
-      - name: Archive binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries-linux-amd64
-          path: |
-            dist
+  #     - name: Archive binaries
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: binaries-linux-amd64
+  #         path: |
+  #           dist
 
-  build_linux_arm64:
-    runs-on: ubuntu-24.04-arm
+  # build_linux_arm64:
+  #   runs-on: ubuntu-24.04-arm
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Install packages
-        run: sudo apt-get update && sudo apt-get install -y ninja-build libglib2.0-dev libpixman-1-dev
+  #     - name: Install packages
+  #       run: sudo apt-get update && sudo apt-get install -y ninja-build libglib2.0-dev libpixman-1-dev
 
-      - name: Download QEMU
-        run: |
-          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
-          tar -xf qemu-$QEMU_VERSION.tar.xz
-          mv qemu-$QEMU_VERSION qemu
+  #     - name: Download QEMU
+  #       run: |
+  #         wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+  #         tar -xf qemu-$QEMU_VERSION.tar.xz
+  #         mv qemu-$QEMU_VERSION qemu
 
-      - name: Build QEMU
-        run: |
-          BUILD_DIR=$(pwd)
-          mkdir $BUILD_DIR/dist
+  #     - name: Build QEMU
+  #       run: |
+  #         BUILD_DIR=$(pwd)
+  #         mkdir $BUILD_DIR/dist
 
-          cd qemu
-          mkdir build
-          cd build
+  #         cd qemu
+  #         mkdir build
+  #         cd build
 
-          ../configure --target-list=aarch64-softmmu --without-default-features --enable-kvm --static --prefix=$BUILD_DIR/dist
-          ninja
-          ninja install
+  #         ../configure --target-list=aarch64-softmmu --without-default-features --enable-kvm --static --prefix=$BUILD_DIR/dist
+  #         ninja
+  #         ninja install
 
-      - name: Archive binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries-linux-arm64
-          path: |
-            dist
+  #     - name: Archive binaries
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: binaries-linux-arm64
+  #         path: |
+  #           dist
 
-  build_windows:
-    runs-on: windows-latest
+  # build_windows:
+  #   runs-on: windows-latest
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: msys2/setup-msys2@v2
+  #     - uses: msys2/setup-msys2@v2
 
-      - name: Install packages
-        shell: msys2 {0}
-        run: |
-          pacman --noconfirm -S base-devel mingw-w64-x86_64-toolchain git python ninja
-          pacman --noconfirm -S mingw-w64-x86_64-glib2 mingw-w64-x86_64-pixman python-setuptools
+  #     - name: Install packages
+  #       shell: msys2 {0}
+  #       run: |
+  #         pacman --noconfirm -S base-devel mingw-w64-x86_64-toolchain git python ninja
+  #         pacman --noconfirm -S mingw-w64-x86_64-glib2 mingw-w64-x86_64-pixman python-setuptools
 
-      - name: Download QEMU
-        shell: msys2 {0}
-        run: |
-          wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
-          # Workaround for https://github.com/msys2/MSYS2-packages/issues/1216
-          export MSYS=winsymlinks:lnk
-          tar -xf qemu-$QEMU_VERSION.tar.xz
-          mv qemu-$QEMU_VERSION qemu
+  #     - name: Download QEMU
+  #       shell: msys2 {0}
+  #       run: |
+  #         wget https://download.qemu.org/qemu-$QEMU_VERSION.tar.xz
+  #         # Workaround for https://github.com/msys2/MSYS2-packages/issues/1216
+  #         export MSYS=winsymlinks:lnk
+  #         tar -xf qemu-$QEMU_VERSION.tar.xz
+  #         mv qemu-$QEMU_VERSION qemu
 
-      - name: Build QEMU
-        shell: msys2 {0}
-        run: |
-          BUILD_DIR=$(pwd)
-          mkdir $BUILD_DIR/dist
+  #     - name: Build QEMU
+  #       shell: msys2 {0}
+  #       run: |
+  #         BUILD_DIR=$(pwd)
+  #         mkdir $BUILD_DIR/dist
 
-          cd qemu
-          mkdir build
-          cd build
+  #         cd qemu
+  #         mkdir build
+  #         cd build
 
-          ../configure \
-            --target-list=x86_64-softmmu \
-            --without-default-features \
-            --disable-iconv \
-            --static \
-            --enable-whpx \
-            --extra-ldflags="-liconv" \
-            --prefix=$BUILD_DIR/dist
-          ninja
-          ninja install
+  #         ../configure \
+  #           --target-list=x86_64-softmmu \
+  #           --without-default-features \
+  #           --disable-iconv \
+  #           --static \
+  #           --enable-whpx \
+  #           --extra-ldflags="-liconv" \
+  #           --prefix=$BUILD_DIR/dist
+  #         ninja
+  #         ninja install
 
-      - name: Archive binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries-windows-amd64
-          path: |
-            dist
+  #     - name: Archive binaries
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: binaries-windows-amd64
+  #         path: |
+  #           dist
 
-  release:
-    runs-on: ubuntu-latest
-    needs:
-      - build_macos
-      - build_macos_arm64
-      - build_linux
-      - build_linux_arm64
-      - build_windows
-    steps:
-      - uses: actions/checkout@v3
+  # release:
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - build_macos
+  #     - build_macos_arm64
+  #     - build_linux
+  #     - build_linux_arm64
+  #     - build_windows
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v4
+  #     - uses: actions/download-artifact@v4
 
-      - name: Copy Files
-        run: |
-          cp binaries-windows-amd64/qemu-system-x86_64.exe qemu-windows-amd64.exe
-          cp binaries-linux-amd64/bin/qemu-system-x86_64 qemu-linux-amd64
-          cp binaries-linux-arm64/bin/qemu-system-aarch64 qemu-linux-arm64
-          cp binaries-darwin-amd64/bin/qemu-system-x86_64 qemu-darwin-amd64
-          cp binaries-darwin-arm64/bin/qemu-system-aarch64 qemu-darwin-arm64
+  #     - name: Copy Files
+  #       run: |
+  #         cp binaries-windows-amd64/qemu-system-x86_64.exe qemu-windows-amd64.exe
+  #         cp binaries-linux-amd64/bin/qemu-system-x86_64 qemu-linux-amd64
+  #         cp binaries-linux-arm64/bin/qemu-system-aarch64 qemu-linux-arm64
+  #         cp binaries-darwin-amd64/bin/qemu-system-x86_64 qemu-darwin-amd64
+  #         cp binaries-darwin-arm64/bin/qemu-system-aarch64 qemu-darwin-arm64
 
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            qemu-windows-amd64.exe
-            qemu-linux-amd64
-            qemu-linux-arm64
-            qemu-darwin-amd64
-            qemu-darwin-arm64
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v2
+  #       if: startsWith(github.ref, 'refs/tags/')
+  #       with:
+  #         files: |
+  #           qemu-windows-amd64.exe
+  #           qemu-linux-amd64
+  #           qemu-linux-arm64
+  #           qemu-darwin-amd64
+  #           qemu-darwin-arm64
