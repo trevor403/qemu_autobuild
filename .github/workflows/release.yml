@@ -4,9 +4,6 @@ on:
   push:
     tags:
       - v*
-    branches:
-      - macos-static-fix
-  workflow_dispatch:
 
 permissions:
   contents: write
